@@ -1,48 +1,45 @@
 from collections import deque
 
-bomb_effect = deque(list(map(int, input().split(', '))))
-bomb_casings = list(map(int, input().split(', ')))
+effects = deque(list(map(int, input().split(', '))))
+casting = list(map(int, input().split(', ')))
+is_fill = False
 
-bombs = {"Datura Bombs": 0, "Cherry Bombs": 0, "Smoke Decoy Bombs": 0}
+bombs = {
+    40: 'Datura Bombs',
+    60: 'Cherry Bombs',
+    120: 'Smoke Decoy Bombs'
+}
 
-"""
-Bombs:
-•	Datura Bombs: 40
-•	Cherry Bombs: 60
-•	Smoke Decoy Bombs: 120
+bombs_count = {
+    'Cherry Bombs': 0,
+    'Datura Bombs': 0,
+    'Smoke Decoy Bombs': 0
+}
 
-"""
-
-while bomb_casings and bomb_effect:
-
-    if bombs['Datura Bombs'] >= 3 and bombs['Cherry Bombs'] >= 3 and bombs['Smoke Decoy Bombs'] >= 3:
+while effects and casting:
+    if all(x >= 3 for x in bombs_count.values()):
         break
+    first_effect = effects[0]
+    last_cast = casting[-1]
 
-    current_effect = bomb_effect.popleft()
-    current_casting = bomb_casings.pop()
+    current_sum = first_effect + last_cast
 
-    current_sum = current_effect + current_casting
+    if current_sum in bombs:
+        current = bombs[first_effect + last_cast]
+        bombs_count[current] += 1
+        effects.popleft()
 
-    if current_sum == 40:
-        bombs['Datura Bombs'] += 1
-    elif current_sum == 60:
-        bombs['Cherry Bombs'] += 1
-    elif current_sum == 120:
-        bombs['Smoke Decoy Bombs'] += 1
+        casting.pop()
     else:
-        current_casting -= 5
-        bomb_effect.appendleft(current_effect)
-        bomb_casings.append(current_casting)
+        casting[-1] -= 5
 
-sum_values = sum([v for k, v in bombs.items()])
-
-if sum_values >= 9:
+if all(x >= 3 for x in bombs_count.values()):
     print("Bene! You have successfully filled the bomb pouch!")
 else:
     print("You don't have enough materials to fill the bomb pouch.")
 
-print("Bomb Effects: empty" if not bomb_effect else f"Bomb Effects: " + ', '.join(list(map(str, bomb_effect))))
-print("Bomb Casings: empty" if not bomb_casings else f"Bomb Casings: " + ', '.join(list(map(str, bomb_casings))))
-
-for k, v in sorted(bombs.items(), key=lambda x: x):
+print(f"Bomb Effects: {', '.join(list(map(str,effects)))}" if effects else "Bomb Effects: empty")
+print(f"Bomb Casings: {', '.join(list(map(str,casting)))}" if casting else "Bomb Casings: empty")
+for k, v in sorted(bombs_count.items(), key=lambda x: x):
     print(f"{k}: {v}")
+# print(f"{k}: {v}" for k, v in sorted(bombs_count.items(), key=lambda x: x))
